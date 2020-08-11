@@ -1,0 +1,81 @@
+﻿@model EnvironmentWatch.Models.DeviceInfo
+
+@{ ViewData["Title"] = "Home"; }
+
+@section Scripts {
+    
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="https://www.google.com/jsapi"></script>    
+    <script type="text/javascript">
+        google.charts.load('current', { 'packages': ['line'] });
+        google.charts.setOnLoadCallback(function () { drawChart(@Model.ReportingDeviceId); });
+        $(window).resize(function () { drawChart(@Model.ReportingDeviceId); });
+    </script>
+}
+
+<div class="jumbotron" style="padding-top: 10px; padding-bottom: 10px;">
+    <h3>Environment Watch</h3>
+    <p>A simple example of IoT for tracking environmental data over time.</p>
+</div>
+
+<div class="row">
+    <div class="col-lg-3">
+
+        <div class="form-group" style="margin-bottom: 20px">
+            <label for="devicesMenu">Current device:</label>
+            <div class="dropdown">
+                <button class="btn btn-success dropdown-toggle" type="button" id="devicesMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="width: 185px">
+                    @Model.TypeName
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="devicesMenu">
+                    @foreach (var item in Model.Devices)
+                    {
+        <li><a href="@Url.Action("Index", new {id = item.ReportingDeviceId})">@item.Name</a></li>}
+                </ul>
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px">
+            <label for="locationsMenu">Set location:</label> <a href="@Url.Action("AddLocation", "Home")">Add</a>
+            <div class="dropdown">
+                <button class="btn btn-info dropdown-toggle" type="button" id="locationsMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="width: 185px">
+                    @Model.LocationName
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="devicesMenu">
+                    @foreach (var item in Model.Locations)
+                    {
+        <li><a href="@Url.Action("ChangeLocation", new {reportingDeviceId = Model.ReportingDeviceId, locationId = item.LocationId})">@item.Name</a></li>}
+                </ul>
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 35px">
+            <label>Last local IP:</label>
+            <div class="dropdown">
+                <a href="http://@Model.LocalIp" target="_blank" class="btn btn-default" role="button" style="width: 185px;">@Model.LocalIp</a>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Last measurements:</label><br />
+            <div class="dropdown">
+                <div class="alert alert-info" style="width: 185px; margin-bottom: 15px; padding: 5px; text-align: center">@Model.LastSet.TempString &deg; fahrenheit</div>
+            </div>
+            <div class="dropdown">
+                <div class="alert alert-danger" style="width: 185px; margin-bottom: 15px; padding: 5px; text-align: center">@Model.LastSet.HumidString % humidity</div>
+            </div>
+            <div class="dropdown">
+                <div class="alert alert-warning" style="width: 185px; margin-bottom: 15px; padding: 5px; text-align: center">@Model.LastSet.LightString % light</div>
+            </div>
+            <span style="font-style: italic">As of @Model.LastSet.DateOnlyString @Model.LastSet.TimeOnlyString</span>
+        </div>
+
+    </div>
+    <div class="col-lg-9">
+        <div id="chart_div" style="width: 100%; min-height: 500px"></div>
+    </div>
+</div>
+
+
